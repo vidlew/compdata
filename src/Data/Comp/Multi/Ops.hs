@@ -1,6 +1,5 @@
 {-# LANGUAGE ConstraintKinds        #-}
 {-# LANGUAGE DataKinds              #-}
-{-# LANGUAGE EmptyDataDecls         #-}
 {-# LANGUAGE FlexibleContexts       #-}
 {-# LANGUAGE FlexibleInstances      #-}
 {-# LANGUAGE FunctionalDependencies #-}
@@ -29,12 +28,11 @@
 --
 --------------------------------------------------------------------------------
 
-module Data.Comp.Multi.Ops
+module Data.Comp.Multi.Ops 
     ( module Data.Comp.Multi.Ops
     , (O.:*:)(..)
     , O.ffst
     , O.fsnd
-    , Proxy(..)
     ) where
 
 
@@ -52,16 +50,6 @@ infixr 6 :+:
 -- |Data type defining coproducts.
 data (f :+: g) (h :: * -> *) e = Inl (f h e)
                                | Inr (g h e)
-
--- |Identity for sums.
-data HZero a i
-instance HFunctor HZero where
-    hfmap _ _ = let x=x in x
-
--- |Allow ambiguous subsumption.
-newtype AllowAmbiguous f g a = AllowAmbiguous {fromAllowAmbiguous :: f g a}
-instance HFunctor f => HFunctor (AllowAmbiguous f) where
-    hfmap h = AllowAmbiguous . hfmap h . fromAllowAmbiguous
 
 {-| Utility function to case on a higher-order functor sum, without exposing the
   internal representation of sums. -}
@@ -102,11 +90,8 @@ infixl 5 :=:
 
 type family Elem (f :: (* -> *) -> * -> *)
                  (g :: (* -> *) -> * -> *) :: Emb where
-    Elem (AllowAmbiguous f) (AllowAmbiguous f) = Found Here
-    Elem HZero f = Found Nowhere
     Elem f f = Found Here
     Elem (f1 :+: f2) g =  Sum' (Elem f1 g) (Elem f2 g)
-    Elem (AllowAmbiguous f) (g1 :+: g2) = UnsafeChoose (Elem (AllowAmbiguous f) g1) (Elem (AllowAmbiguous f) g2)
     Elem f (g1 :+: g2) = Choose (Elem f g1) (Elem f g2)
     Elem f g = NotFound
 
@@ -115,14 +100,10 @@ class Subsume (e :: Emb) (f :: (* -> *) -> * -> *)
   inj'  :: Proxy e -> f a :-> g a
   prj'  :: Proxy e -> NatM Maybe (g a) (f a)
 
-instance {-# INCOHERENT #-} Subsume e f f where
+instance Subsume (Found Here) f f where
     inj' _ = id
 
     prj' _ = Just
-
-instance Subsume (Found Nowhere) HZero g where
-    inj' _ _ = let x=x in x
-    prj' _ _ = Nothing
 
 instance Subsume (Found p) f g => Subsume (Found (Le p)) f (g :+: g') where
     inj' _ = Inl . inj' (P :: Proxy (Found p))
@@ -168,38 +149,6 @@ spl :: (f :=: f1 :+: f2) => (f1 a :-> b) -> (f2 a :-> b) -> f a :-> b
 spl f1 f2 x = case inj x of
             Inl y -> f1 y
             Inr y -> f2 y
-
-type family RemoveEmb (f :: (* -> *) -> * -> *) (e :: Emb) :: (* -> *) -> * -> * where
-    RemoveEmb (f :+: g) (Found (Le a)) = (RemoveEmb f (Found a)) :+: g
-    RemoveEmb (f :+: g) (Found (Ri a)) = f :+: (RemoveEmb g (Found a))
-    RemoveEmb f (Found (Sum a b)) = RemoveEmb (RemoveEmb f (Found a)) (Found b)
-    RemoveEmb f (Found Here) = HZero
-    RemoveEmb f (Found Nowhere) = f
-    RemoveEmb f NotFound = f
-
-type g :-: f = RemoveEmb g (ComprEmb (Elem f g))
-
--- |Removes all Zero summands from a functor
-type family RemoveZeroeSummands (f :: (* -> *) -> * -> *) :: (* -> *) -> * -> * where
-    RemoveZeroeSummands f = RemoveZeroeSummands' (HasZeroSummand f) f
-
-type family RemoveZeroeSummands' (p :: Bool) (f :: (* -> *) -> * -> *) where
-    RemoveZeroeSummands' True (HZero :+: f) = RemoveZeroeSummands f
-    RemoveZeroeSummands' True (f :+: HZero) = RemoveZeroeSummands f
-    RemoveZeroeSummands' True (f :+: g) = RemoveZeroeSummands ((RemoveZeroeSummands f) :+: RemoveZeroeSummands g)
-    RemoveZeroeSummands' False f = f
-
-type family HasZeroSummand (f :: (* -> *) -> * -> *) :: Bool where
-    HasZeroSummand (HZero :+: f) = True
-    HasZeroSummand (f :+: HZero) = True
-    HasZeroSummand (f :+: g) = Or (HasZeroSummand f) (HasZeroSummand g)
-    HasZeroSummand f = False
-
-extractSummand :: forall f g. (g :<: f :+: (RemoveEmb g (ComprEmb (Elem f g)))) => Proxy f -> forall a. g a :-> (f :+: (RemoveEmb g (ComprEmb (Elem f g)))) a
-extractSummand _ = inj
-
-removeZeroeSummands :: forall f. (f :<: RemoveZeroeSummands f) => forall a. f a :-> (RemoveZeroeSummands f) a
-removeZeroeSummands = inj
 
 -- Constant Products
 
