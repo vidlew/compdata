@@ -2,6 +2,7 @@
 {-# LANGUAGE DeriveTraversable         #-}
 {-# LANGUAGE DeriveFoldable            #-}
 {-# LANGUAGE DeriveFunctor             #-}
+{-# LANGUAGE GADTs                     #-}
 {-# LANGUAGE ExistentialQuantification #-}
 {-# LANGUAGE FlexibleInstances         #-}
 {-# LANGUAGE MultiParamTypeClasses     #-}
@@ -38,10 +39,13 @@ module Data.Comp.Multi.HFunctor
      A (..),
      E (..),
      runE,
+     ET (..),
+     runET,
      (:.:)(..)
      ) where
 
 import Data.Functor.Compose
+import Data.Typeable
 
 -- | The identity Functor.
 newtype I a = I {unI :: a} deriving (Functor, Foldable, Traversable)
@@ -54,6 +58,12 @@ data E f = forall i. E {unE :: f i}
 
 runE :: (f :=> b) -> E f -> b
 runE f (E x) = f x
+
+data ET f where ET :: forall f i. Typeable i => {unET :: f i} -> ET f
+
+runET :: (f :=> b) -> ET f -> b
+runET f (ET x) = f x
+
 
 instance Show a => Show (K a b) where show = show . unK
 instance Show a => Show (E (K a)) where show (E x) = show x
