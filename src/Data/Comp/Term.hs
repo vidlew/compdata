@@ -38,6 +38,7 @@ import Control.Monad hiding (mapM, sequence)
 
 import Data.Foldable
 import Data.Traversable
+import Data.Kind
 import Unsafe.Coerce
 
 import Prelude hiding (foldl, foldl1, foldr, foldr1, mapM, sequence)
@@ -59,7 +60,7 @@ supposed to be one of the phantom types 'Hole' and 'NoHole'. The
 second parameter is the signature of the context. The third parameter
 is the type of the holes. -}
 
-data Cxt :: * -> (* -> *) -> * -> * where
+data Cxt :: Type -> (Type -> Type) -> Type -> Type where
             Term :: f (Cxt h f a) -> Cxt h f a
             Hole :: a -> Cxt Hole f a
 
