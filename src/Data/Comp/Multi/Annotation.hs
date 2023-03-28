@@ -1,3 +1,4 @@
+{-# LANGUAGE AllowAmbiguousTypes   #-}
 {-# LANGUAGE ConstraintKinds       #-}
 {-# LANGUAGE DataKinds             #-}
 {-# LANGUAGE FlexibleContexts      #-}
@@ -38,7 +39,8 @@ module Data.Comp.Multi.Annotation
 
      AnnotateSummand,
      addAnn,
-     remAnn
+     remAnn,
+     remAnnTerm
     ) where
 
 import Data.Comp.Multi.Algebra
@@ -120,8 +122,12 @@ instance (AnnotateSummand' (Found p) t v f g, AnnotateSummand' (Found q) t v f' 
 
 type AnnotateSummand t v f g = (ComprEmb (Elem t f) ~ ComprEmb (Elem (t:&:v) g), AnnotateSummand' (ComprEmb (Elem t f)) t v f g)
 
-addAnn :: forall t v f g . AnnotateSummand t v f g => Proxy t -> v -> SigFun f g
-addAnn = addAnn' (P @(ComprEmb (Elem t f)))
+addAnn :: forall t v f g . AnnotateSummand t v f g => v -> SigFun f g
+addAnn = addAnn' (P @(ComprEmb (Elem t f))) (P @t)
 
-remAnn :: forall t v f g . AnnotateSummand t v f g => Proxy t -> Proxy v -> SigFun g f
-remAnn = remAnn' (P @(ComprEmb (Elem t f)))
+remAnn :: forall t v f g . AnnotateSummand t v f g => SigFun g f
+remAnn = remAnn' (P @(ComprEmb (Elem t f))) (P @t) (P @v)
+
+remAnnTerm :: forall t v f g . (HFunctor g, AnnotateSummand t v f g) => CxtFun g f
+remAnnTerm (Term t) = Term . remAnn @t @v $ hfmap (remAnnTerm @t @v) t
+remAnnTerm (Hole x) = Hole x
