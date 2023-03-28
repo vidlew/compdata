@@ -1,10 +1,13 @@
 {-# LANGUAGE ConstraintKinds       #-}
+{-# LANGUAGE DataKinds             #-}
 {-# LANGUAGE FlexibleContexts      #-}
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE GADTs                 #-}
+{-# LANGUAGE KindSignatures        #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE Rank2Types            #-}
 {-# LANGUAGE ScopedTypeVariables   #-}
+{-# LANGUAGE TypeApplications      #-}
 {-# LANGUAGE TypeOperators         #-}
 {-# LANGUAGE UndecidableInstances  #-}
 --------------------------------------------------------------------------------
@@ -31,7 +34,11 @@ module Data.Comp.Multi.Annotation
      liftA',
      stripA,
      propAnn,
-     project'
+     project',
+
+     AnnotateSummand,
+     addAnn,
+     remAnn
     ) where
 
 import Data.Comp.Multi.Algebra
@@ -39,6 +46,8 @@ import Data.Comp.Multi.HFunctor
 import Data.Comp.Multi.Ops
 import Data.Comp.Multi.Term
 import qualified Data.Comp.Ops as O
+import Data.Comp.SubsumeCommon
+import Data.Kind
 
 -- | This function transforms a function with a domain constructed
 -- from a functor to a function with a domain constructed with the
@@ -78,3 +87,41 @@ propAnn alg f' = ann p (alg f)
 project' :: (RemA f f', s :<: f') => Cxt h f a i -> Maybe (s (Cxt h f a) i)
 project' (Term x) = proj $ remA x
 project' _ = Nothing
+
+class AnnotateSummand' (e :: Emb)
+                      (t :: (Type -> Type) -> Type -> Type)
+                      (v :: Type)
+                      (f :: (Type -> Type) -> Type -> Type)
+                      (g :: (Type -> Type) -> Type -> Type) where
+    addAnn' :: Proxy e -> Proxy t -> v -> SigFun f g
+    remAnn' :: Proxy e -> Proxy t -> Proxy v -> SigFun g f
+
+instance AnnotateSummand' (Found Here) f v f (f :&: v) where
+    addAnn' _ _ = flip (:&:)
+    remAnn' _ _ _ (t :&: _) = t
+
+instance AnnotateSummand' (Found p) t v f g => AnnotateSummand' (Found (Le p)) t v (f :+: g') (g :+: g') where
+    addAnn' _ _ v (Inl x) = Inl $ addAnn' (P @(Found p)) (P @t) v x
+    addAnn' _ _ _ (Inr x) = Inr x
+    remAnn' _ _ _ (Inl x) = Inl $ remAnn' (P @(Found p)) (P @t) (P @v) x
+    remAnn' _ _ _ (Inr x) = Inr x
+
+instance AnnotateSummand' (Found p) t v f g => AnnotateSummand' (Found (Ri p)) t v (g' :+: f) (g' :+: g) where
+    addAnn' _ _ v (Inr x) = Inr $ addAnn' (P @(Found p)) (P @t) v x
+    addAnn' _ _ _ (Inl x) = Inl x
+    remAnn' _ _ _ (Inr x) = Inr $ remAnn' (P @(Found p)) (P @t) (P @v) x
+    remAnn' _ _ _ (Inl x) = Inl x
+
+instance (AnnotateSummand' (Found p) t v f g, AnnotateSummand' (Found q) t v f' g') => AnnotateSummand' (Found (Sum p q)) t v (f :+: f') (g :+: g') where
+    addAnn' _ _ v (Inl x) = Inl $ addAnn' (P @(Found p)) (P @t) v x
+    addAnn' _ _ v (Inr x) = Inr $ addAnn' (P @(Found q)) (P @t) v x
+    remAnn' _ _ _ (Inl x) = Inl $ remAnn' (P @(Found p)) (P @t) (P @v) x
+    remAnn' _ _ _ (Inr x) = Inr $ remAnn' (P @(Found q)) (P @t) (P @v) x
+
+type AnnotateSummand t v f g = (ComprEmb (Elem t f) ~ ComprEmb (Elem (t:&:v) g), AnnotateSummand' (ComprEmb (Elem t f)) t v f g)
+
+addAnn :: forall t v f g . AnnotateSummand t v f g => Proxy t -> v -> SigFun f g
+addAnn = addAnn' (P @(ComprEmb (Elem t f)))
+
+remAnn :: forall t v f g . AnnotateSummand t v f g => Proxy t -> Proxy v -> SigFun g f
+remAnn = remAnn' (P @(ComprEmb (Elem t f)))
