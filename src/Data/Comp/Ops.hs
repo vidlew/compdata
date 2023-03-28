@@ -224,6 +224,10 @@ instance (RemA s s') => RemA (f :&: p :+: s) (f :+: s') where
     remA (Inl (v :&: _)) = Inl v
     remA (Inr v) = Inr $ remA v
 
+instance (RemA s s') => RemA (s :+: f :&: p) (s' :+: f) where
+    remA (Inl v) = Inl $ remA v
+    remA (Inr (v :&: _)) = Inr v
+
 
 instance RemA (f :&: p) f where
     remA (v :&: _) = v
