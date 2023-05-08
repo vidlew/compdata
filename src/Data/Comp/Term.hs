@@ -112,7 +112,7 @@ instance Functor f => Applicative (Context f) where
     (<*>) = ap
 
 instance (Functor f) => Monad (Context f) where
-    return = Hole
+    return = pure
     m >>= f = run m
         where run (Hole v) = f v
               run (Term t) = Term (fmap run t)
