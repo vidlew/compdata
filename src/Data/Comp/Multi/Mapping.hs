@@ -26,6 +26,7 @@ module Data.Comp.Multi.Mapping
     , number
     , HTraversable ()
     , Mapping (..)
+    , NumMap (..)
     , lookupNumMap) where
 
 import Data.Comp.Multi.HFunctor
