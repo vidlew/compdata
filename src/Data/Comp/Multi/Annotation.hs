@@ -37,7 +37,7 @@ module Data.Comp.Multi.Annotation
      propAnn,
      project',
 
-     AnnotateSummand (..),
+     AnnotateSummand,
      addAnn,
      remAnn,
      remAnnTerm
@@ -99,7 +99,7 @@ class AnnotateSummand' (e :: Emb)
     remAnn' :: Proxy e -> Proxy t -> Proxy v -> SigFun g f
 
 instance AnnotateSummand' (Found Here) f v f (f :&: v) where
-    addAnn' _ _ = flip (:&:)
+    addAnn' _ _ = \a b -> b :&: a
     remAnn' _ _ _ (t :&: _) = t
 
 instance AnnotateSummand' (Found p) t v f g => AnnotateSummand' (Found (Le p)) t v (f :+: g') (g :+: g') where
