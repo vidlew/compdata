@@ -201,7 +201,7 @@ hfsnd :: (f :**: g) a :-> g a
 hfsnd (_ :**: x) = x
 -- Constant Products
 
-infixr 7 :&:
+infixl 7 :&:
 
 -- | This data type adds a constant product to a
 -- signature. Alternatively, this could have also been defined as

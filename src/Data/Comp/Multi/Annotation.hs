@@ -37,7 +37,7 @@ module Data.Comp.Multi.Annotation
      propAnn,
      project',
 
-     AnnotateSummand,
+     AnnotateSummand (..),
      addAnn,
      remAnn,
      remAnnTerm
