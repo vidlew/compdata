@@ -62,13 +62,17 @@ infixl 5 :<
 infixl 5 :~<
 infixl 5 :>
 
+type family IsFound (e :: Emb) :: Bool where
+    IsFound NotFound = False 
+    IsFound (Found _) = True
+
 -- | The constraint @e :< p@ expresses that @e@ is a component of the
 -- type @p@. That is, @p@ is formed by binary products using the type
 -- @e@. The occurrence of @e@ must be unique. For example we have @Int
 -- :< (Bool,(Int,Bool))@ but not @Bool :< (Bool,(Int,Bool))@.
 
-type f :< g = (Proj (ComprEmb (Elem f g)) f g, ModifyFactor (ComprEmb (Elem f g)) f g)
-type f :~< g = ComprEmb (Elem f g) ~ NotFound
+type f :< g = (IsFound (ComprEmb (Elem f g)) ~ True, Proj (ComprEmb (Elem f g)) f g, ModifyFactor (ComprEmb (Elem f g)) g f)
+type f :~< g = IsFound (ComprEmb (Elem f g)) ~ False
 type f :> g = g :< f
 
 
