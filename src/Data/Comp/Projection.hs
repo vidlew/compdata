@@ -66,7 +66,7 @@ infixl 5 :>
 -- @e@. The occurrence of @e@ must be unique. For example we have @Int
 -- :< (Bool,(Int,Bool))@ but not @Bool :< (Bool,(Int,Bool))@.
 
-type f :< g = (Proj (ComprEmb (Elem f g)) f g)
+type f :< g = (Proj (ComprEmb (Elem f g)) f g, ModifyFactor (ComprEmb (Elem f g)) f g)
 type f :> g = g :< f
 
 
