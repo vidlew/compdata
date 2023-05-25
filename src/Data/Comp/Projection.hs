@@ -26,7 +26,7 @@
 --------------------------------------------------------------------------------
 
 
-module Data.Comp.Projection (pr, (:<), (:>), AddFactor, modifyFactor) where
+module Data.Comp.Projection (pr, (:<), (:~<), (:>), AddFactor, addFactor, modifyFactor) where
 
 import Data.Comp.SubsumeCommon
 import Data.Kind
@@ -59,6 +59,7 @@ instance (Proj (Found p1) f1 g, Proj (Found p2) f2 g)
 
 
 infixl 5 :<
+infixl 5 :~<
 infixl 5 :>
 
 -- | The constraint @e :< p@ expresses that @e@ is a component of the
@@ -67,6 +68,7 @@ infixl 5 :>
 -- :< (Bool,(Int,Bool))@ but not @Bool :< (Bool,(Int,Bool))@.
 
 type f :< g = (Proj (ComprEmb (Elem f g)) f g, ModifyFactor (ComprEmb (Elem f g)) f g)
+type f :~< g = ComprEmb (Elem f g) ~ NotFound
 type f :> g = g :< f
 
 
@@ -81,7 +83,10 @@ type family AddFactor' (e :: Emb) (v :: Type) (w :: Type) :: Type where
     AddFactor' NotFound v w = (v,w)
     AddFactor' Ambiguous v w = v
 
-type AddFactor v w = AddFactor' (Elem w v) v w
+type AddFactor v w = AddFactor' (ComprEmb (Elem w v)) v w
+
+addFactor :: (ComprEmb (Elem w v) ~ NotFound) => w -> v -> AddFactor v w
+addFactor w v = (v,w)
 
 class ModifyFactor (e :: Emb) v w where
     modifyFactor' :: Proxy e -> v -> w -> w
