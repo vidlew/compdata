@@ -5,6 +5,7 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE ScopedTypeVariables   #-}
 {-# LANGUAGE TypeFamilies          #-}
+{-# LANGUAGE TypeApplications      #-}
 {-# LANGUAGE TypeOperators         #-}
 {-# LANGUAGE UndecidableInstances  #-}
 
@@ -25,19 +26,20 @@
 --------------------------------------------------------------------------------
 
 
-module Data.Comp.Projection (pr, (:<), (:>)) where
+module Data.Comp.Projection (pr, (:<), (:>), AddFactor, modifyFactor) where
 
 import Data.Comp.SubsumeCommon
+import Data.Kind
 
-type family Elem (f :: *)
-                 (g :: *) :: Emb where
+type family Elem (f :: Type)
+                 (g :: Type) :: Emb where
     Elem f f = Found Here
     Elem (f1, f2) g =  Sum' (Elem f1 g) (Elem f2 g)
     Elem f (g1, g2) = Choose (Elem f g1) (Elem f g2)
     Elem f g = NotFound
 
-class Proj (e :: Emb) (p :: *)
-                      (q :: *) where
+class Proj (e :: Emb) (p :: Type)
+                      (q :: Type) where
     pr'  :: Proxy e -> q -> p
 
 instance Proj (Found Here) f f where
@@ -73,3 +75,28 @@ type f :> g = g :< f
 
 pr :: forall p q . (p :< q) => q -> p
 pr = pr' (P :: Proxy (ComprEmb (Elem p q)))
+
+type family AddFactor' (e :: Emb) (v :: Type) (w :: Type) :: Type where
+    AddFactor' (Found _) v w = v
+    AddFactor' NotFound v w = (v,w)
+    AddFactor' Ambiguous v w = v
+
+type AddFactor v w = AddFactor' (Elem w v) v w
+
+class ModifyFactor (e :: Emb) v w where
+    modifyFactor' :: Proxy e -> v -> w -> w
+
+instance ModifyFactor (Found Here) v v where
+    modifyFactor' _ v _ = v
+
+instance (ModifyFactor (Found e) u w, ModifyFactor (Found f) v w) => ModifyFactor (Found (Sum e f)) (u,v) w where
+    modifyFactor' _ (u,v) w = modifyFactor' (P @(Found e)) u $ modifyFactor' (P @(Found f)) v w
+
+instance (ModifyFactor (Found e) u w) => ModifyFactor (Found (Le e)) u (w,v) where
+    modifyFactor' _ u (w,v) = (modifyFactor' (P @(Found e)) u w, v)
+
+instance (ModifyFactor (Found e) u v) => ModifyFactor (Found (Ri e)) u (w,v) where
+    modifyFactor' _ u (w,v) = (w, modifyFactor' (P @(Found e)) u v)
+
+modifyFactor :: forall u v. (u :< v, ModifyFactor (Elem u v) u v) => u -> v -> v
+modifyFactor = modifyFactor' $ P @(Elem u v)
