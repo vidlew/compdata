@@ -26,7 +26,7 @@
 --------------------------------------------------------------------------------
 
 
-module Data.Comp.Projection (pr, (:<), (:~<), (:>), AddFactor, addFactor, modifyFactor) where
+module Data.Comp.Projection (pr, (:<), (:>)) where
 
 import Data.Comp.SubsumeCommon
 import Data.Kind
@@ -59,7 +59,7 @@ instance (Proj (Found p1) f1 g, Proj (Found p2) f2 g)
 
 
 infixl 5 :<
-infixl 5 :~<
+--infixl 5 :~<
 infixl 5 :>
 
 type family IsFound (e :: Emb) :: Bool where
@@ -71,8 +71,11 @@ type family IsFound (e :: Emb) :: Bool where
 -- @e@. The occurrence of @e@ must be unique. For example we have @Int
 -- :< (Bool,(Int,Bool))@ but not @Bool :< (Bool,(Int,Bool))@.
 
-type f :< g = (IsFound (ComprEmb (Elem f g)) ~ True, Proj (ComprEmb (Elem f g)) f g, ModifyFactor (ComprEmb (Elem f g)) g f)
-type f :~< g = IsFound (ComprEmb (Elem f g)) ~ False
+type f :< g = --(IsFound (ComprEmb (Elem f g)) ~ True,
+              Proj (ComprEmb (Elem f g)) f g
+              --, ModifyFactor (ComprEmb (Elem f g)) g f
+              --)
+--type f :~< g = IsFound (ComprEmb (Elem f g)) ~ False
 type f :> g = g :< f
 
 
