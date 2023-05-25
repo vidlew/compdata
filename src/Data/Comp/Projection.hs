@@ -98,5 +98,5 @@ instance (ModifyFactor (Found e) u w) => ModifyFactor (Found (Le e)) u (w,v) whe
 instance (ModifyFactor (Found e) u v) => ModifyFactor (Found (Ri e)) u (w,v) where
     modifyFactor' _ u (w,v) = (w, modifyFactor' (P @(Found e)) u v)
 
-modifyFactor :: forall u v. (u :< v, ModifyFactor (Elem u v) u v) => u -> v -> v
-modifyFactor = modifyFactor' $ P @(Elem u v)
+modifyFactor :: forall u v. (u :< v, ModifyFactor (ComprEmb (Elem u v)) u v) => u -> v -> v
+modifyFactor = modifyFactor' $ P @(ComprEmb (Elem u v))
