@@ -46,6 +46,7 @@ module Data.Comp.Multi.HFunctor
 
 import Data.Functor.Compose
 import Data.Typeable
+import Data.Kind
 
 -- | The identity Functor.
 newtype I a = I {unI :: a} deriving (Functor, Foldable, Traversable)
@@ -127,4 +128,4 @@ instance (Functor f) => HFunctor (Compose f) where hfmap f (Compose xs) = Compos
 infixl 5 :.:
 
 -- | This data type denotes the composition of two functor families.
-data (:.:) f (g :: (* -> *) -> (* -> *)) (e :: * -> *) t = Comp (f (g e) t)
+data (:.:) f (g :: (Type -> Type) -> (Type -> Type)) (e :: Type -> Type) t = Comp (f (g e) t)

@@ -54,6 +54,7 @@ import Data.Map (Map)
 import qualified Data.Map as Map
 import Data.Set (Set)
 import qualified Data.Set as Set
+import Data.Kind
 
 
 type GSubst v a = Map v (A a)
@@ -67,12 +68,12 @@ type SubstFun v a = NatM Maybe (K v) a
 
 
 substFun :: Ord v => GSubst v a -> SubstFun v a
-substFun s (K v) = fmap (\(A x) -> x) $ Map.lookup v s
+substFun s (K v) = (\(A x) -> x) <$> Map.lookup v s
 
 {-| This multiparameter class defines functors with variables. An instance
   @HasVar f v@ denotes that values over @f@ might contain and bind variables of
   type @v@. -}
-class HasVars (f  :: (* -> *) -> * -> *) v where
+class HasVars (f  :: (Type -> Type) -> Type -> Type) v where
     -- | Indicates whether the @f@ constructor is a variable. The
     -- default implementation returns @Nothing@.
     isVar :: f a :=> Maybe v

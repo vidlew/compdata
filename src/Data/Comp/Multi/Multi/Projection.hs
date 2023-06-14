@@ -32,9 +32,10 @@ module Data.Comp.Multi.Multi.Projection (pr, (:<), (:**:)(..), hffst, hfsnd) whe
 import Data.Comp.SubsumeCommon
 import Data.Comp.Multi.HFunctor
 import Data.Comp.Multi.Ops
+import Data.Kind
 
-class Proj (e :: Emb) (p :: (* -> *) -> * -> *)
-                      (q :: (* -> *) -> * -> *) where
+class Proj (e :: Emb) (p :: (Type -> Type) -> Type -> Type)
+                      (q :: (Type -> Type) -> Type -> Type) where
     pr'  :: Proxy e -> q a :-> p a
 
 instance Proj (Found Here) f f where

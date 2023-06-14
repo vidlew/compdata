@@ -37,6 +37,7 @@ module Data.Comp.Multi.Ops
 
 
 import Control.Monad
+import Data.Kind
 import Data.Comp.Multi.HFoldable
 import Data.Comp.Multi.HFunctor
 import Data.Comp.Multi.HTraversable
@@ -48,7 +49,7 @@ infixr 6 :+:
 
 
 -- |Data type defining coproducts.
-data (f :+: g) (h :: * -> *) e = Inl (f h e)
+data (f :+: g) (h :: Type -> Type) e = Inl (f h e)
                                | Inr (g h e)
 
 {-| Utility function to case on a higher-order functor sum, without exposing the
@@ -88,15 +89,15 @@ instance (HTraversable f, HTraversable g) => HTraversable (f :+: g) where
 infixl 5 :<:
 infixl 5 :=:
 
-type family Elem (f :: (* -> *) -> * -> *)
-                 (g :: (* -> *) -> * -> *) :: Emb where
+type family Elem (f :: (Type -> Type) -> Type -> Type)
+                 (g :: (Type -> Type) -> Type -> Type) :: Emb where
     Elem f f = Found Here
     Elem (f1 :+: f2) g =  Sum' (Elem f1 g) (Elem f2 g)
     Elem f (g1 :+: g2) = Choose (Elem f g1) (Elem f g2)
     Elem f g = NotFound
 
-class Subsume (e :: Emb) (f :: (* -> *) -> * -> *)
-                         (g :: (* -> *) -> * -> *) where
+class Subsume (e :: Emb) (f :: (Type -> Type) -> Type -> Type)
+                         (g :: (Type -> Type) -> Type -> Type) where
   inj'  :: Proxy e -> f a :-> g a
   prj'  :: Proxy e -> NatM Maybe (g a) (f a)
 
@@ -152,13 +153,13 @@ spl f1 f2 x = case inj x of
             Inr y -> f2 y
 
 -- | Position of f as a summand of g (simpler version of subsumption)
-type family SummandPos (f :: (* -> *) -> * -> *) (g :: (* -> *) -> * -> *) :: Emb where
+type family SummandPos (f :: (Type -> Type) -> Type -> Type) (g :: (Type -> Type) -> Type -> Type) :: Emb where
     SummandPos f f = Found Here
     SummandPos f (g1 :+: g2) = Choose (SummandPos f g1) (SummandPos f g2)
     SummandPos f g = NotFound
 
-class IsSummandOf (e :: Emb) (f :: (* -> *) -> * -> *)
-                         (g :: (* -> *) -> * -> *) where
+class IsSummandOf (e :: Emb) (f :: (Type -> Type) -> Type -> Type)
+                         (g :: (Type -> Type) -> Type -> Type) where
   summandInj'  :: Proxy e -> f a :-> g a
   summandPrj'  :: Proxy e -> NatM Maybe (g a) (f a)
 
@@ -192,13 +193,14 @@ summandProj = summandPrj' (P :: Proxy (SummandPos f g))
 infixr 8 :**:
 
 -- |Formal product of signatures (hfunctors).
-data ((f :: (* -> *) -> * -> *) :**: (g :: (* -> *) -> * -> *)) a b = f a b :**: g a b
+data ((f :: (Type -> Type) -> Type -> Type) :**: (g :: (Type -> Type) -> Type -> Type)) a b = f a b :**: g a b
 
 hffst :: (f :**: g) a :-> f a
 hffst (x :**: _) = x
 
 hfsnd :: (f :**: g) a :-> g a
 hfsnd (_ :**: x) = x
+
 -- Constant Products
 
 infixl 7 :&:
@@ -207,12 +209,12 @@ infixl 7 :&:
 -- signature. Alternatively, this could have also been defined as
 --
 -- @
--- data (f :&: a) (g ::  * -> *) e = f g e :&: a e
+-- data (f :&: a) (g ::  Type -> Type) e = f g e :&: a e
 -- @
 --
 -- This is too general, however, for example for 'productHHom'.
 
-data (f :&: a) (g ::  * -> *) e = f g e :&: a
+data (f :&: a) (g ::  Type -> Type) e = f g e :&: a
 
 
 instance (HFunctor f) => HFunctor (f :&: a) where
@@ -233,13 +235,13 @@ instance (HTraversable f) => HTraversable (f :&: a) where
 
 -- | This class defines how to distribute an annotation over a sum of
 -- signatures.
-class DistAnn (s :: (* -> *) -> * -> *) p s' | s' -> s, s' -> p where
+class DistAnn (s :: (Type -> Type) -> Type -> Type) p s' | s' -> s, s' -> p where
     -- | This function injects an annotation over a signature.
     injectA :: p -> s a :-> s' a
     projectA :: s' a :-> (s a O.:&: p)
 
 
-class RemA (s :: (* -> *) -> * -> *) s' | s -> s'  where
+class RemA (s :: (Type -> Type) -> Type -> Type) s' | s -> s'  where
     remA :: s a :-> s' a
 
 
