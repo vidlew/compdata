@@ -169,7 +169,7 @@ fsnd :: (f :*: g) a -> g a
 fsnd (_ :*: x) = x
 
 instance (Functor f, Functor g) => Functor (f :*: g) where
-    fmap h (f :*: g) = (fmap h f :*: fmap h g)
+    fmap h (f :*: g) = fmap h f :*: fmap h g
 
 
 instance (Foldable f, Foldable g) => Foldable (f :*: g) where
