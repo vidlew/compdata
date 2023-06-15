@@ -32,15 +32,15 @@ import Data.Comp.SubsumeCommon
 import Data.Comp.Multi.Ops hiding (Elem)
 import Data.Kind
 
-type family Elem (f :: Type -> Type)
-                 (g :: Type -> Type) :: Emb where
+type family Elem (f :: k -> Type)
+                 (g :: k -> Type) :: Emb where
     Elem f f = Found Here
     Elem (f1 :*: f2) g =  Sum' (Elem f1 g) (Elem f2 g)
     Elem f (g1 :*: g2) = Choose (Elem f g1) (Elem f g2)
     Elem f g = NotFound
 
-class Proj (e :: Emb) (p :: Type -> Type)
-                      (q :: Type -> Type) where
+class Proj (e :: Emb) (p :: k -> Type)
+                      (q :: k -> Type) where
     pr'  :: Proxy e -> q a -> p a
 
 instance Proj (Found Here) f f where
