@@ -49,7 +49,7 @@ infixr 6 :+:
 
 
 -- |Data type defining coproducts.
-data (f :+: g) (h :: Type -> Type) e = Inl (f h e)
+data (f :+: g) h e = Inl (f h e)
                                | Inr (g h e)
 
 {-| Utility function to case on a higher-order functor sum, without exposing the
