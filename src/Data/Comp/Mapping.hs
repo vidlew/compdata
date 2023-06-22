@@ -97,6 +97,6 @@ instance Mapping (NumMap k) (Numbered k) where
 
     findWithDefault d (Numbered i _) m = lookupNumMap d i m
 
-    prodMapWith f p q (NumMap mp) (NumMap mq) = NumMap $ IntMap.mergeWithKey merge 
+    prodMapWith f p q (NumMap mp) (NumMap mq) = NumMap $ IntMap.mergeWithKey merge
                                           (IntMap.map (`f` q)) (IntMap.map (p `f`)) mp mq
       where merge _ p q = Just (p `f` q)

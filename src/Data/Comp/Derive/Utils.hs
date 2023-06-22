@@ -33,9 +33,9 @@ data DataInfo = DataInfo Cxt Name [TyVarBndr] [Con] [Name]
 data DataInfo = DataInfo Cxt Name [TyVarBndr] [Con] Cxt
 #else
 #if __GLASGOW_HASKELL__ < 900
-data DataInfo = DataInfo Cxt Name [TyVarBndr] [Con] [DerivClause] 
+data DataInfo = DataInfo Cxt Name [TyVarBndr] [Con] [DerivClause]
 #else
-data DataInfo = DataInfo Cxt Name [TyVarBndr ()] [Con] [DerivClause] 
+data DataInfo = DataInfo Cxt Name [TyVarBndr ()] [Con] [DerivClause]
 #endif
 #endif
 #endif
@@ -80,7 +80,7 @@ normalCon _ = error "missing case for 'normalCon'"
 normalCon' :: Con -> (Name,[Type], Maybe Type)
 normalCon' con = (n, map snd ts, t)
   where (n, ts, t) = normalCon con
-      
+
 
 -- -- | Same as normalCon' but expands type synonyms.
 -- normalConExp :: Con -> Q (Name,[Type])

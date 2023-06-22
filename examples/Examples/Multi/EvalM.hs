@@ -13,7 +13,7 @@
 -- Monadic Expression Evaluation
 --
 -- The example illustrates how to use generalised compositional data types to
--- implement a small expression language, with a sub language of values, and a 
+-- implement a small expression language, with a sub language of values, and a
 -- monadic evaluation function mapping expressions to values.
 --
 --------------------------------------------------------------------------------

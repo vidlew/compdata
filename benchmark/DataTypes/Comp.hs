@@ -11,9 +11,9 @@
   ConstraintKinds,
   DeriveGeneric, DeriveAnyClass #-}
 
-module DataTypes.Comp 
+module DataTypes.Comp
     ( module DataTypes.Comp,
-      module DataTypes 
+      module DataTypes
     ) where
 
 import DataTypes
@@ -103,12 +103,12 @@ instance ShowF Op where
     showF (Proj ProjLeft x) = x ++ "!0"
     showF (Proj ProjRight x) = x ++ "!1"
 
-instance ShowF ValueT where 
+instance ShowF ValueT where
     showF TInt = "Int"
     showF TBool = "Bool"
     showF (TPair x y) = "(" ++ x ++ "," ++ y ++ ")"
 
-instance ShowF Sugar where 
+instance ShowF Sugar where
     showF (Neg x) = "- " ++ x
     showF (Minus x y) = "(" ++ x ++ "-" ++ y ++ ")"
     showF (Gt x y) = "(" ++ x ++ ">" ++ y ++ ")"
@@ -123,7 +123,7 @@ class GenTyped f where
     genTypedAlg' a = genTypedAlg a >>= \ g -> return [(1,g)]
 
 genTyped :: forall f . (Traversable f, GenTyped f) => BaseType -> Gen (Term f)
-genTyped = run 
+genTyped = run
     where run :: BaseType -> Gen (Term f)
           run t = liftM Term $ genTypedAlg t >>= mapM (desize . run)
 
@@ -139,7 +139,7 @@ forAllTyped f = forAll genSomeTyped f
 
 
 instance (GenTyped f, GenTyped g) => GenTyped (f :+: g) where
-    genTypedAlg' t = do 
+    genTypedAlg' t = do
       left <- genTypedAlg' t
       right <- genTypedAlg' t
       let left' = map inl left

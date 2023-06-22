@@ -28,7 +28,7 @@
 --
 --------------------------------------------------------------------------------
 
-module Data.Comp.Multi.Ops 
+module Data.Comp.Multi.Ops
     ( module Data.Comp.Multi.Ops
     , (O.:*:)(..)
     , O.ffst

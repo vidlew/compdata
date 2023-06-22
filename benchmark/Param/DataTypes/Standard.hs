@@ -1,9 +1,9 @@
 {-# LANGUAGE TypeSynonymInstances, TemplateHaskell, DeriveDataTypeable,
   FlexibleInstances #-}
-module Param.DataTypes.Standard 
+module Param.DataTypes.Standard
     (
      module Param.DataTypes.Standard,
-     module Param.DataTypes 
+     module Param.DataTypes
     ) where
 
 import Param.DataTypes

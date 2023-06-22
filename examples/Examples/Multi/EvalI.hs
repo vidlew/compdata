@@ -11,7 +11,7 @@
 --
 -- Intrinsic, Tag-less Expression Evaluation
 --
--- The example illustrates how to use generalised compositional data types 
+-- The example illustrates how to use generalised compositional data types
 -- to implement a small expression language, and  an evaluation function mapping
 -- intrinsically typed expressions to values.
 --

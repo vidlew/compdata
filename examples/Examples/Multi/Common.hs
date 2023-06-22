@@ -35,5 +35,5 @@ type Sig = Op :+: Value
 
 -- Derive boilerplate code using Template Haskell (GHC 7 needed)
 $(derive [makeHFunctor, makeHFoldable, makeHTraversable, makeShowHF, makeEqHF,
-          makeOrdHF, smartConstructors, smartAConstructors] 
+          makeOrdHF, smartConstructors, smartAConstructors]
          [''Value, ''Op])

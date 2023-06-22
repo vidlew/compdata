@@ -33,7 +33,7 @@ data Ex
 type Value f = forall i . Term f i
 type Expression f = Term f Ex
 
-data Val e i where 
+data Val e i where
     Abs :: Var -> e Ex -> Val e i
     Var :: Var -> Val e i
     Int :: Int -> Val e i
@@ -44,10 +44,10 @@ data Op e i where
     Plus :: e Ex -> e Ex -> Op e Ex
 
 
-data Let e i  where 
+data Let e i  where
              Let :: Var -> e Ex -> e Ex -> Let e Ex
 
-data LetRec e i  where 
+data LetRec e i  where
              LetRec :: Var -> e Ex -> e Ex -> LetRec e Ex
 
 type Sig = Op :+: Val
@@ -63,7 +63,7 @@ $(derive [makeHFunctor, makeHTraversable, makeHFoldable,
 instance HasVars Val Var where
     isVar (Var v) = Just v
     isVar _       = Nothing
-    
+
     bindsVars (Abs v a) = a |-> Set.singleton v
     bindsVars _         = empty
 

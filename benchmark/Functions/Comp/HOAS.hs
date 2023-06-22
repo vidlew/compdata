@@ -18,14 +18,14 @@ import Prelude hiding (foldr)
 
 ex1 :: HOASExpr
 ex1 = iLam (\x -> case project x of
-                    Just (VInt _) -> x 
+                    Just (VInt _) -> x
                     _ -> x `iPlus` x)
 ex2 :: HOASExpr
 ex2 = iLam (\x -> case x of
                     Term t -> case proj t of
-                                Just (VInt _) -> x 
+                                Just (VInt _) -> x
                                 _ -> x `iPlus` x)
-                                
+
 
 class Vars f where
     varsAlg :: Alg f Int

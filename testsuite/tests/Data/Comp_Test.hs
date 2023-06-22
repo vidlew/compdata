@@ -1,6 +1,6 @@
 module Data.Comp_Test where
 
-import Test.Framework 
+import Test.Framework
 
 import qualified Data.Comp.Equality_Test
 import qualified Data.Comp.Examples_Test

@@ -32,5 +32,5 @@ tests = testGroup "Equality" [
 prop_eqMod_fmap cxt f = case eqMod cxt cxt' of
                    Nothing -> False
                    Just list -> all (uncurry (==)) $ map (\(x,y)->(f x,y)) list
-    where cxt' = fmap f cxt 
+    where cxt' = fmap f cxt
           _with = (cxt :: Context SigP Int, f :: Int -> Int)

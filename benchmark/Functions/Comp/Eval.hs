@@ -47,7 +47,7 @@ instance (Value :<: (m :+: v), Value :<: v, Traversable v, EqF v, MonadFail m) =
                            VInt i <- whnfPr x
                            VInt j <- whnfPr y
                            return $ iVInt (i*j)
-    evalTAlg (If x y z) = thunk $ do 
+    evalTAlg (If x y z) = thunk $ do
                             VBool b <- whnfPr x
                             return $ if b then y else z
     evalTAlg (Eq x y) = thunk $ liftM iVBool $ eqT x y
@@ -133,7 +133,7 @@ instance (Value :<: v, EqF v, MonadFail m) => Eval Op v m where
     evalAlg (And x y) = liftM2 (\ b c -> iVBool (b && c)) (coerceBool x) (coerceBool y)
     evalAlg (Not x) = liftM (iVBool . not) (coerceBool x)
     evalAlg (Proj p x) = liftM select (coercePair x)
-        where select (x,y) = case p of 
+        where select (x,y) = case p of
                                ProjLeft -> x
                                ProjRight -> y
 
@@ -188,7 +188,7 @@ evalPair t = do
 instance (MonadFail m) => EvalDir Op m where
     evalDir (Plus x y) = liftM2 (\ i j -> iVInt (i + j)) (evalInt x) (evalInt y)
     evalDir (Mult x y) = liftM2 (\ i j -> iVInt (i * j)) (evalInt x) (evalInt y)
-    evalDir (If b x y) = do 
+    evalDir (If b x y) = do
       b' <- evalBool b
       if b' then evalDirect x else evalDirect y
     evalDir (Eq x y) = liftM iVBool $ liftM2 (==) (evalDirect x) (evalDirect y)
@@ -196,7 +196,7 @@ instance (MonadFail m) => EvalDir Op m where
     evalDir (And x y) = liftM2 (\ b c -> iVBool (b && c)) (evalBool x) (evalBool y)
     evalDir (Not x) = liftM (iVBool . not) (evalBool x)
     evalDir (Proj p x) = liftM select (evalPair x)
-        where select (x,y) = case p of 
+        where select (x,y) = case p of
                                ProjLeft -> x
                                ProjRight -> y
 
@@ -246,7 +246,7 @@ instance (Value :<: v, EqF v) => Eval2 Op v where
     eval2Alg (And x y) = (\ b c -> iVBool (b && c)) (coerceBool2 x) (coerceBool2 y)
     eval2Alg (Not x) = (iVBool . not) (coerceBool2 x)
     eval2Alg (Proj p x) = select (coercePair2 x)
-        where select (x,y) = case p of 
+        where select (x,y) = case p of
                                ProjLeft -> x
                                ProjRight -> y
 
@@ -302,7 +302,7 @@ instance EvalDir2 Op where
     evalDir2 (And x y) = (\ b c -> iVBool (b && c)) (evalBool2 x) (evalBool2 y)
     evalDir2 (Not x) =  (iVBool . not) (evalBool2 x)
     evalDir2 (Proj p x) =  select (evalPair2 x)
-        where select (x,y) = case p of 
+        where select (x,y) = case p of
                                ProjLeft -> x
                                ProjRight -> y
 

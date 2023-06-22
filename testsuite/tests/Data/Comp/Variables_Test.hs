@@ -1,4 +1,4 @@
-{-# LANGUAGE TemplateHaskell, TypeSynonymInstances, FlexibleInstances, MultiParamTypeClasses, 
+{-# LANGUAGE TemplateHaskell, TypeSynonymInstances, FlexibleInstances, MultiParamTypeClasses,
   TypeOperators, FlexibleContexts, ConstraintKinds #-}
 {-# LANGUAGE DeriveFunctor #-}
 
@@ -55,7 +55,7 @@ $(derive [makeTraversable, makeFoldable,
 instance HasVars Val Var where
     isVar (Var v) = Just v
     isVar _       = Nothing
-    
+
     bindsVars (Abs v a) =  a |-> Set.singleton v
     bindsVars _         = empty
 

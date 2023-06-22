@@ -1,8 +1,8 @@
 {-# LANGUAGE TypeSynonymInstances, TemplateHaskell, DeriveDataTypeable,
 DeriveGeneric, DeriveAnyClass #-}
-module DataTypes.Standard 
+module DataTypes.Standard
     ( module DataTypes.Standard,
-      module DataTypes 
+      module DataTypes
     ) where
 
 import GHC.Generics (Generic)
@@ -85,7 +85,7 @@ instance Show OExpr where
     show (OProj SProjLeft x) = (show x) ++ "!0"
     show (OProj SProjRight x) = (show x) ++ "!1"
 
-instance Show VType where 
+instance Show VType where
     show VTInt = "Int"
     show VTBool = "Bool"
     show (VTPair x y) = "(" ++ show x ++ "," ++ show y ++ ")"

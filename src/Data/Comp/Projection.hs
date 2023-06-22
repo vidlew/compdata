@@ -63,7 +63,7 @@ infixl 5 :<
 infixl 5 :>
 
 type family IsFound (e :: Emb) :: Bool where
-    IsFound NotFound = False 
+    IsFound NotFound = False
     IsFound (Found _) = True
 
 -- | The constraint @e :< p@ expresses that @e@ is a component of the

@@ -23,7 +23,7 @@ instance Uniplate PExpr where
 
 
 contVar :: Int -> PExpr -> Bool
-contVar v e = 
+contVar v e =
     case e of
       PInt i -> i == v
       PBool{} -> False
@@ -44,7 +44,7 @@ contVar v e =
     where re = contVar v
 
 freeVars :: PExpr -> [Int]
-freeVars e = 
+freeVars e =
     case e of
       PInt i -> [i]
       PBool{} -> []

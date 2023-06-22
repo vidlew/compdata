@@ -42,7 +42,7 @@ instance (ValueT :<: t, MonadFail m) => InferType Value t m where
 
 checkOp :: (g :<: f, Eq (g (Term f)), MonadFail m) =>
            [g (Term f)] -> g (Term f) -> [Term f] -> m (Term f)
-checkOp exs et tys = if and (zipWith (\ f t -> maybe False (==f) (project t)) exs tys) 
+checkOp exs et tys = if and (zipWith (\ f t -> maybe False (==f) (project t)) exs tys)
                      then return (inject et)
                      else fail""
 
@@ -55,10 +55,10 @@ instance (ValueT :<: t, EqF t, MonadFail m) => InferType Op t m where
     inferTypeAlg (Not x) = checkOp [TBool] TBool [x]
     inferTypeAlg (If b x y) = case project b of
                                  Just TBool | x == y -> return x
-                                 _ -> fail "" 
+                                 _ -> fail ""
     inferTypeAlg (Eq x y) = if x == y then return iTBool else fail ""
     inferTypeAlg (Proj p x) = case project x of
-                                Just (TPair x1 x2) -> 
+                                Just (TPair x1 x2) ->
                                     case p of
                                       ProjLeft -> return x1
                                       ProjRight -> return x2
@@ -119,7 +119,7 @@ instance (ValueT :<: t, EqF t) => InferType2 Op t where
                                  _ -> error ""
     inferTypeAlg2 (Eq x y) = if x == y then iTBool else error ""
     inferTypeAlg2 (Proj p x) = case project x of
-                                Just (TPair x1 x2) -> 
+                                Just (TPair x1 x2) ->
                                     case p of
                                       ProjLeft -> x1
                                       ProjRight -> x2

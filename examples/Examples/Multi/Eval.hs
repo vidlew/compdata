@@ -12,8 +12,8 @@
 --
 -- Expression Evaluation
 --
--- The example illustrates how to use generalised compositional data types 
--- to implement a small expression language, with a sub language of values, and 
+-- The example illustrates how to use generalised compositional data types
+-- to implement a small expression language, with a sub language of values, and
 -- an evaluation function mapping expressions to values.
 --
 --------------------------------------------------------------------------------
