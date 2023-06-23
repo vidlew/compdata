@@ -5,12 +5,12 @@
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE GADTs                  #-}
 {-# LANGUAGE MultiParamTypeClasses  #-}
-{-# LANGUAGE PolyKinds              #-}
 {-# LANGUAGE ScopedTypeVariables    #-}
 {-# LANGUAGE TypeFamilies           #-}
 {-# LANGUAGE TypeOperators          #-}
 {-# LANGUAGE TypeSynonymInstances   #-}
 {-# LANGUAGE UndecidableInstances   #-}
+{-# LANGUAGE AllowAmbiguousTypes    #-}
 
 --------------------------------------------------------------------------------
 -- |
@@ -33,8 +33,10 @@ import Data.Traversable
 import Control.Applicative
 import Control.Monad hiding (mapM, sequence)
 import Data.Comp.SubsumeCommon
+import Data.Constraint
 import Data.Kind
 
+import Unsafe.Coerce
 
 import Prelude hiding (foldl, foldl1, foldr, foldr1, mapM, sequence)
 
@@ -131,7 +133,12 @@ instance (Subsume (Found p1) f1 g, Subsume (Found p2) f2 g)
                              Just y -> Just (Inr y)
                              _      -> Nothing
 
+-- trust me bro, it's safe
+lweaken1 :: forall p1 p2 f1 f2 g . Subsume (Found (Sum p1 p2)) (f1:+:f2) g :- Subsume (Found p1) f1 g
+lweaken1 = unmapDict $ \x@Dict -> unsafeCoerce x
 
+rweaken1 :: forall p1 p2 f1 f2 g . Subsume (Found (Sum p1 p2)) (f1:+:f2) g :- Subsume (Found p2) f2 g
+rweaken1 = unmapDict $ \x@Dict -> unsafeCoerce x
 
 -- | A constraint @f :<: g@ expresses that the signature @f@ is
 -- subsumed by @g@, i.e. @f@ can be used to construct elements in @g@.
@@ -179,7 +186,7 @@ instance (Foldable f, Foldable g) => Foldable (f :*: g) where
 
 instance (Traversable f, Traversable g) => Traversable (f :*: g) where
     traverse f (x :*: y) = liftA2 (:*:) (traverse f x) (traverse f y)
-    sequenceA (x :*: y) = liftA2 (:*:)(sequenceA x) (sequenceA y)
+    sequenceA (x :*: y) = liftA2 (:*:) (sequenceA x) (sequenceA y)
     mapM f (x :*: y) = liftM2 (:*:) (mapM f x) (mapM f y)
     sequence (x :*: y) = liftM2 (:*:) (sequence x) (sequence y)
 
@@ -204,7 +211,7 @@ instance (Foldable f) => Foldable (f :&: a) where
 
 instance (Traversable f) => Traversable (f :&: a) where
     traverse f (v :&: c) = liftA (:&: c) (traverse f v)
-    sequenceA (v :&: c) = liftA (:&: c)(sequenceA v)
+    sequenceA (v :&: c) = liftA (:&: c) (sequenceA v)
     mapM f (v :&: c) = liftM (:&: c) (mapM f v)
     sequence (v :&: c) = liftM (:&: c) (sequence v)
 
