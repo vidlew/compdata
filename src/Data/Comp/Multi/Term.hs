@@ -122,13 +122,13 @@ simpCxt :: (HFunctor f) => f a i -> Context f a i
 simpCxt = Term . hfmap Hole
 
 {-| Cast a term over a signature to a context over the same signature. -}
-toCxt :: (HFunctor f) => Term f :-> Context f a
+toCxt :: Term f :-> Context f a
 {-# INLINE toCxt #-}
 toCxt = unsafeCoerce
 -- equivalent to @Term . (hfmap toCxt) . unTerm@
 
 {-| Cast a context with no holes over a signature to a term over the same signature. -}
-toTerm :: (HFunctor f) => Cxt NoHole f a :-> Term f
+toTerm :: Cxt NoHole f a :-> Term f
 {-# INLINE toTerm #-}
 toTerm = unsafeCoerce
 -- equivalent to @Term . (hfmap toTerm) . unTerm@
