@@ -19,8 +19,8 @@
 # resolver: https://example.com/snapshots/2018-01-01.yaml
 #resolver: lts-18.20
 
-compiler: ghc-9.4.7
-resolver: lts-21.14
+compiler: ghc-9.4.8
+resolver: lts-21.22
 #resolver: nightly-2023-03-12
 #resolver: lts-20.5
 

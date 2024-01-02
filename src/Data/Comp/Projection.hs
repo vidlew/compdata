@@ -1,3 +1,4 @@
+{-# LANGUAGE AllowAmbiguousTypes   #-}
 {-# LANGUAGE ConstraintKinds       #-}
 {-# LANGUAGE DataKinds             #-}
 {-# LANGUAGE FlexibleContexts      #-}
@@ -26,7 +27,7 @@
 --------------------------------------------------------------------------------
 
 
-module Data.Comp.Projection (pr, (:<), (:>)) where
+module Data.Comp.Projection (pr, (:<), (:>), mapFactor) where
 
 import Data.Comp.SubsumeCommon
 import Data.Kind
@@ -112,3 +113,24 @@ instance (ModifyFactor (Found e) u v) => ModifyFactor (Found (Ri e)) u (w,v) whe
 
 modifyFactor :: forall u v. (u :< v, ModifyFactor (ComprEmb (Elem u v)) u v) => u -> v -> v
 modifyFactor = modifyFactor' $ P @(ComprEmb (Elem u v))
+
+
+type family ReplaceFactor (e :: Emb) u v where
+    ReplaceFactor (Found Here) u v = u
+    ReplaceFactor (Found (Le e)) u (a,b) = (ReplaceFactor (Found e) u a,b)
+    ReplaceFactor (Found (Ri e)) u (a,b) = (a,ReplaceFactor (Found e) u b)
+
+class MapFactor (e :: Emb) s u where
+    mapFactor' :: forall t . (s -> t) -> u -> (ReplaceFactor e t u)
+
+instance MapFactor (Found Here) s s where
+    mapFactor' f t = f t
+
+instance (MapFactor (Found e) s u) => MapFactor (Found (Le e)) s (u,v) where
+    mapFactor' f (u,v) = (mapFactor' @(Found e) f u, v)
+
+instance (MapFactor (Found e) s v) => MapFactor (Found (Ri e)) s (u,v) where
+    mapFactor' f (u,v) = (u, mapFactor' @(Found e) f v)
+
+mapFactor :: forall s t u . (s :< u, MapFactor (ComprEmb (Elem s u)) s u) => (s -> t) -> u -> ReplaceFactor (ComprEmb (Elem s u)) t u
+mapFactor = mapFactor' @(ComprEmb (Elem s u))
